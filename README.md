@@ -1,2 +1,2 @@
 # prompt
-ChatGPS 4o prompts for image generation
+ChatGPT 4o prompts for image generation
