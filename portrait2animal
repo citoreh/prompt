@@ -1,0 +1,240 @@
+{
+  "prompt": "Transform the uploaded portrait photo into a highly-detailed animal form that reflects the subject's essence and physical characteristics. Create a seamless blend between human and animal features while maintaining recognizability of the original subject.",
+  
+  "parameters": {
+    "input_image": {
+      "type": "portrait_photo",
+      "requirements": {
+        "resolution": "minimum 1024x1024px",
+        "format": ["jpg", "png", "webp"],
+        "lighting": "clear facial features visible",
+        "pose": "front-facing or 3/4 view preferred"
+      }
+    },
+    
+    "facial_analysis": {
+      "feature_mapping": {
+        "eyes": {
+          "shape": ["round", "almond", "hooded", "deep-set", "close-set", "wide-set"],
+          "color": ["blue", "green", "brown", "hazel", "amber", "gray"],
+          "intensity": ["piercing", "soft", "alert", "dreamy", "intense"],
+          "animal_correlation": {
+            "round_large": ["owl", "deer", "lemur"],
+            "almond_sharp": ["fox", "wolf", "cat", "eagle"],
+            "small_keen": ["hawk", "rodent", "ferret"]
+          }
+        },
+        "nose": {
+          "shape": ["narrow", "wide", "button", "roman", "bulbous"],
+          "prominence": ["flat", "medium", "pronounced"],
+          "animal_correlation": {
+            "narrow_pronounced": ["horse", "deer", "fox"],
+            "wide_flat": ["big cat", "bear", "koala"],
+            "small_button": ["rabbit", "mouse", "small pets"]
+          }
+        },
+        "mouth": {
+          "size": ["small", "medium", "large"],
+          "lips": ["thin", "full", "defined", "heart-shaped"],
+          "expression": ["serious", "smiling", "playful", "stern"],
+          "animal_correlation": {
+            "wide_smiling": ["dolphin", "monkey", "dog"],
+            "small_serious": ["cat", "owl", "fox"],
+            "full_expressive": ["parrot", "hippo", "gorilla"]
+          }
+        },
+        "face_shape": {
+          "type": ["round", "oval", "square", "heart", "diamond", "rectangular", "triangular"],
+          "animal_correlation": {
+            "round": ["bear", "panda", "owl"],
+            "oval": ["horse", "deer", "wolf"],
+            "square": ["gorilla", "bull", "lion"],
+            "heart": ["fox", "cat", "rodent"],
+            "triangular": ["tiger", "jackal", "snake"]
+          }
+        },
+        "jawline": {
+          "definition": ["soft", "defined", "angular", "strong"],
+          "animal_correlation": {
+            "strong_defined": ["wolf", "lion", "crocodile"],
+            "soft_rounded": ["koala", "rabbit", "seal"]
+          }
+        },
+        "forehead": {
+          "height": ["low", "medium", "high"],
+          "width": ["narrow", "average", "broad"],
+          "animal_correlation": {
+            "high_broad": ["elephant", "gorilla", "bear"],
+            "low_narrow": ["cat", "weasel", "reptile"]
+          }
+        }
+      }
+    },
+    
+    "personality_assessment": {
+      "traits": {
+        "energy": ["calm", "alert", "energetic", "relaxed", "intense"],
+        "temperament": ["gentle", "fierce", "playful", "reserved", "protective"],
+        "sociability": ["solitary", "social", "pack-oriented", "territorial", "communal"],
+        "intelligence": ["clever", "instinctual", "analytical", "cunning", "wise"],
+        "animal_correlation": {
+          "calm_wise": ["owl", "elephant", "turtle"],
+          "energetic_playful": ["dolphin", "otter", "monkey"],
+          "fierce_protective": ["wolf", "bear", "eagle"],
+          "cunning_alert": ["fox", "raven", "cat"],
+          "gentle_social": ["deer", "rabbit", "horse"]
+        }
+      }
+    },
+    
+    "physical_attributes": {
+      "build": ["slender", "average", "muscular", "stocky", "tall", "short"],
+      "movement": ["graceful", "powerful", "agile", "deliberate", "swift"],
+      "animal_correlation": {
+        "slender_graceful": ["deer", "cheetah", "crane"],
+        "muscular_powerful": ["bear", "tiger", "gorilla"],
+        "agile_swift": ["monkey", "squirrel", "cat"]
+      }
+    },
+    
+    "output_settings": {
+      "transformation_level": {
+        "type": "float",
+        "range": [0.1, 1.0],
+        "default": 0.7,
+        "description": "Controls how completely human features transform into animal features (0.1 = subtle hints, 1.0 = full animal with human essence)"
+      },
+      "style_options": {
+        "artistic_style": ["realistic", "stylized", "fantasy", "painterly", "illustrative"],
+        "color_palette": ["natural", "vibrant", "muted", "monochromatic", "complementary"],
+        "background": {
+          "type": ["natural habitat", "abstract", "gradient", "solid color", "environmental portrait"],
+          "focus": ["subject-focused", "environmental", "minimalist"]
+        }
+      },
+      "enhancements": {
+        "fur_feather_scale_detail": {
+          "type": "float",
+          "range": [0.1, 1.0],
+          "default": 0.8
+        },
+        "eyes_emphasis": {
+          "type": "float",
+          "range": [0.1, 1.0],
+          "default": 0.9
+        },
+        "expression_preservation": {
+          "type": "float",
+          "range": [0.1, 1.0],
+          "default": 0.75
+        }
+      },
+      "image_specifications": {
+        "aspect_ratio": ["1:1", "4:5", "3:4", "9:16"],
+        "resolution": ["1024x1024", "2048x2048", "4096x4096"],
+        "format": ["png", "jpg", "webp"]
+      }
+    },
+    
+    "additional_elements": {
+      "accessories": {
+        "enable": true,
+        "options": ["natural elements", "symbolic items", "clothing remnants", "jewelry"],
+        "preservation_level": {
+          "type": "float",
+          "range": [0.0, 1.0],
+          "default": 0.3
+        }
+      },
+      "characteristic_behaviors": {
+        "enable": true,
+        "description": "Incorporates subtle pose or environmental elements that reflect the animal's natural behavior"
+      },
+      "symbolic_elements": {
+        "enable": true,
+        "description": "Adds background elements or motifs that symbolize personality traits"
+      }
+    },
+    
+    "blend_technique": {
+      "face_priority_areas": ["eyes", "expression", "overall shape"],
+      "preservation_level": {
+        "type": "float",
+        "range": [0.1, 0.9],
+        "default": 0.6,
+        "description": "How much of the original human features remain recognizable"
+      },
+      "transition_smoothness": {
+        "type": "float",
+        "range": [0.1, 1.0],
+        "default": 0.8,
+        "description": "Controls how naturally human features blend into animal features"
+      }
+    },
+    
+    "animal_selection": {
+      "method": "automatic",
+      "fallback_options": ["manual selection", "multiple suggestions"],
+      "weighting": {
+        "facial_features": 0.4,
+        "personality_traits": 0.4,
+        "physical_attributes": 0.2
+      },
+      "category_preference": {
+        "mammals": 1.0,
+        "birds": 1.0,
+        "reptiles": 1.0,
+        "amphibians": 1.0,
+        "fish": 0.8,
+        "insects": 0.6
+      },
+      "specific_exclusions": [],
+      "specific_inclusions": []
+    }
+  },
+  
+  "processing_instructions": {
+    "analysis_steps": [
+      "Analyze facial geometry and features of uploaded portrait",
+      "Identify dominant personality characteristics from facial expression",
+      "Calculate best matching animal based on weighted feature correlation",
+      "Generate preliminary blend visualization for approval",
+      "Apply selected transformation parameters to create final output"
+    ],
+    "ethical_guidelines": {
+      "maintain_dignity": true,
+      "avoid_stereotypes": true,
+      "respect_cultural_sensitivities": true,
+      "ensure_positive_representation": true
+    },
+    "feedback_loop": {
+      "enable": true,
+      "adjustment_parameters": [
+        "animal_selection",
+        "transformation_level",
+        "style_options",
+        "blend_technique"
+      ]
+    }
+  },
+  
+  "examples": {
+    "reference_transformations": [
+      {
+        "human_traits": "Round face, bright eyes, gentle smile, calm demeanor",
+        "animal_result": "Owl with human-like expressive eyes, facial feather patterns echo original face shape",
+        "transformation_level": 0.7
+      },
+      {
+        "human_traits": "Strong jawline, intense gaze, confident posture",
+        "animal_result": "Wolf with preserved intensity in eyes, facial structure maintains human dignity",
+        "transformation_level": 0.65
+      },
+      {
+        "human_traits": "Heart-shaped face, playful expression, delicate features",
+        "animal_result": "Fox with subtle hints of original facial geometry, playfulness preserved in expression",
+        "transformation_level": 0.8
+      }
+    ]
+  }
+}
