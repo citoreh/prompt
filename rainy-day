@@ -1,0 +1,62 @@
+{
+  "prompt": "Apply realistic rainy day with fog effect to the photo, keep high resolution, preserve all original objects and composition, add wet texture effects to surfaces",
+  "parameters": {
+    "weather_effects": {
+      "rain": {
+        "intensity": 0.7,
+        "droplet_size": 0.4,
+        "direction": -15,
+        "transparency": 0.6,
+        "reflectivity": 0.8
+      },
+      "fog": {
+        "density": 0.5,
+        "color": "#E8E8E8",
+        "height_gradient": true,
+        "depth_effect": 0.6
+      }
+    },
+    "lighting": {
+      "brightness": -0.2,
+      "contrast": 0.9,
+      "saturation": 0.85,
+      "temperature": -300
+    },
+    "water_effects": {
+      "surface_wetness": 0.8,
+      "puddle_reflection": 0.7,
+      "texture_modification": {
+        "enabled": true,
+        "specular_highlight": 0.75,
+        "darkening": 0.3,
+        "glossiness": 0.8
+      },
+      "material_specific": {
+        "fabric": {"saturation": -0.1, "darkening": 0.4},
+        "wood": {"glossiness": 0.6, "color_enhancement": 0.3},
+        "stone": {"specularity": 0.8, "darkening": 0.25},
+        "concrete": {"darkening": 0.4, "glossiness": 0.7},
+        "metal": {"glossiness": 0.9, "reflection_strength": 0.8},
+        "glass": {"droplet_adherence": 0.7, "streaking": 0.6}
+      },
+      "water_accumulation": {
+        "natural_patterns": true,
+        "micro_pooling": 0.5
+      }
+    },
+    "atmosphere": {
+      "humidity": 0.9,
+      "haze_distance": 0.6
+    },
+    "preservation": {
+      "maintain_objects": true,
+      "maintain_composition": true,
+      "maintain_resolution": "original"
+    },
+    "output": {
+      "format": "png",
+      "quality": "maximum",
+      "resolution": "original"
+    }
+  }
+}
