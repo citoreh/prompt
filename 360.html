@@ -180,12 +180,48 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .output-title {
             font-size: 1.2rem;
             font-weight: 600;
             color: #333;
+        }
+
+        .output-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .format-toggle {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+
+        .format-btn {
+            padding: 0.5rem 1.2rem;
+            background: white;
+            color: #666;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .format-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .format-btn:hover:not(.active) {
+            background: #f5f5f5;
         }
 
         .copy-btn {
@@ -410,7 +446,13 @@
             <div id="outputSection" class="output-section">
                 <div class="output-header">
                     <div class="output-title">Generated 360° Video Prompt</div>
-                    <button class="copy-btn" onclick="copyPrompt()">Copy to Clipboard</button>
+                    <div class="output-controls">
+                        <div class="format-toggle">
+                            <button type="button" class="format-btn active" onclick="switchFormat('text')">Text</button>
+                            <button type="button" class="format-btn" onclick="switchFormat('json')">JSON</button>
+                        </div>
+                        <button class="copy-btn" onclick="copyPrompt()">Copy to Clipboard</button>
+                    </div>
                 </div>
                 <div id="promptOutput"></div>
             </div>
@@ -418,79 +460,129 @@
     </div>
 
     <script>
+        let currentFormat = 'text';
+        let promptData = {};
+
         document.getElementById('promptForm').addEventListener('submit', function(e) {
             e.preventDefault();
             generatePrompt();
         });
 
         function generatePrompt() {
-            const sceneDesc = document.getElementById('sceneDesc').value;
-            const cameraHeight = document.getElementById('cameraHeight').value;
-            const cameraPosition = document.getElementById('cameraPosition').value;
-            const front = document.getElementById('front').value;
-            const right = document.getElementById('right').value;
-            const back = document.getElementById('back').value;
-            const left = document.getElementById('left').value;
-            const above = document.getElementById('above').value;
-            const below = document.getElementById('below').value;
-            const cameraMovement = document.getElementById('cameraMovement').value;
-            const sceneElements = document.getElementById('sceneElements').value;
-            const duration = document.getElementById('duration').value;
-            const timeOfDay = document.getElementById('timeOfDay').value;
-            const lighting = document.getElementById('lighting').value;
-            const weather = document.getElementById('weather').value;
-            const resolution = document.getElementById('resolution').value;
-            const frameRate = document.getElementById('frameRate').value;
-            const audioDesc = document.getElementById('audioDesc').value;
+            // Collect all form data
+            promptData = {
+                sceneDescription: document.getElementById('sceneDesc').value || '',
+                cameraSetup: {
+                    height: document.getElementById('cameraHeight').value || '',
+                    position: document.getElementById('cameraPosition').value || ''
+                },
+                environmentalDetails: {
+                    front: document.getElementById('front').value || '',
+                    right: document.getElementById('right').value || '',
+                    back: document.getElementById('back').value || '',
+                    left: document.getElementById('left').value || '',
+                    above: document.getElementById('above').value || '',
+                    below: document.getElementById('below').value || ''
+                },
+                movementAnimation: {
+                    cameraMovement: document.getElementById('cameraMovement').value,
+                    sceneElements: document.getElementById('sceneElements').value || '',
+                    duration: parseInt(document.getElementById('duration').value)
+                },
+                atmosphereLighting: {
+                    timeOfDay: document.getElementById('timeOfDay').value,
+                    lighting: document.getElementById('lighting').value || '',
+                    weather: document.getElementById('weather').value
+                },
+                technicalSpecs: {
+                    format: 'Equirectangular projection (360° x 180°)',
+                    resolution: document.getElementById('resolution').value,
+                    frameRate: document.getElementById('frameRate').value,
+                    seamlessStitching: true
+                },
+                spatialAudio: document.getElementById('audioDesc').value || ''
+            };
 
-            let prompt = `360-DEGREE VIDEO PROMPT\n\n`;
-            prompt += `SCENE DESCRIPTION:\n${sceneDesc || '[Not specified]'}\n\n`;
-            
-            prompt += `CAMERA SETUP:\n`;
-            prompt += `- Height: ${cameraHeight || '[Not specified]'}\n`;
-            prompt += `- Position: ${cameraPosition || '[Not specified]'}\n\n`;
-            
-            prompt += `360° ENVIRONMENTAL DETAILS:\n`;
-            prompt += `- Front (0°): ${front || '[Not specified]'}\n`;
-            prompt += `- Right (90°): ${right || '[Not specified]'}\n`;
-            prompt += `- Back (180°): ${back || '[Not specified]'}\n`;
-            prompt += `- Left (270°): ${left || '[Not specified]'}\n`;
-            prompt += `- Above (Zenith): ${above || '[Not specified]'}\n`;
-            prompt += `- Below (Nadir): ${below || '[Not specified]'}\n\n`;
-            
-            prompt += `MOVEMENT & ANIMATION:\n`;
-            prompt += `- Camera Movement: ${cameraMovement}\n`;
-            prompt += `- Scene Elements: ${sceneElements || '[No movement specified]'}\n`;
-            prompt += `- Duration: ${duration} seconds\n\n`;
-            
-            prompt += `ATMOSPHERE & LIGHTING:\n`;
-            prompt += `- Time of Day: ${timeOfDay}\n`;
-            prompt += `- Lighting: ${lighting || '[Not specified]'}\n`;
-            prompt += `- Weather: ${weather}\n\n`;
-            
-            prompt += `TECHNICAL SPECIFICATIONS:\n`;
-            prompt += `- Format: Equirectangular projection (360° x 180°)\n`;
-            prompt += `- Resolution: ${resolution}\n`;
-            prompt += `- Frame Rate: ${frameRate}\n`;
-            prompt += `- Seamless stitching at all seams (0°/360° boundary)\n`;
-            
-            if (audioDesc) {
-                prompt += `\nSPATIAL AUDIO:\n${audioDesc}\n`;
-            }
-
-            document.getElementById('promptOutput').textContent = prompt;
+            displayPrompt(currentFormat);
             document.getElementById('outputSection').classList.add('active');
             document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function displayPrompt(format) {
+            const output = document.getElementById('promptOutput');
+            
+            if (format === 'json') {
+                output.textContent = JSON.stringify(promptData, null, 2);
+            } else {
+                // Text format
+                let prompt = `360-DEGREE VIDEO PROMPT\n\n`;
+                prompt += `SCENE DESCRIPTION:\n${promptData.sceneDescription || '[Not specified]'}\n\n`;
+                
+                prompt += `CAMERA SETUP:\n`;
+                prompt += `- Height: ${promptData.cameraSetup.height || '[Not specified]'}\n`;
+                prompt += `- Position: ${promptData.cameraSetup.position || '[Not specified]'}\n\n`;
+                
+                prompt += `360° ENVIRONMENTAL DETAILS:\n`;
+                prompt += `- Front (0°): ${promptData.environmentalDetails.front || '[Not specified]'}\n`;
+                prompt += `- Right (90°): ${promptData.environmentalDetails.right || '[Not specified]'}\n`;
+                prompt += `- Back (180°): ${promptData.environmentalDetails.back || '[Not specified]'}\n`;
+                prompt += `- Left (270°): ${promptData.environmentalDetails.left || '[Not specified]'}\n`;
+                prompt += `- Above (Zenith): ${promptData.environmentalDetails.above || '[Not specified]'}\n`;
+                prompt += `- Below (Nadir): ${promptData.environmentalDetails.below || '[Not specified]'}\n\n`;
+                
+                prompt += `MOVEMENT & ANIMATION:\n`;
+                prompt += `- Camera Movement: ${promptData.movementAnimation.cameraMovement}\n`;
+                prompt += `- Scene Elements: ${promptData.movementAnimation.sceneElements || '[No movement specified]'}\n`;
+                prompt += `- Duration: ${promptData.movementAnimation.duration} seconds\n\n`;
+                
+                prompt += `ATMOSPHERE & LIGHTING:\n`;
+                prompt += `- Time of Day: ${promptData.atmosphereLighting.timeOfDay}\n`;
+                prompt += `- Lighting: ${promptData.atmosphereLighting.lighting || '[Not specified]'}\n`;
+                prompt += `- Weather: ${promptData.atmosphereLighting.weather}\n\n`;
+                
+                prompt += `TECHNICAL SPECIFICATIONS:\n`;
+                prompt += `- Format: ${promptData.technicalSpecs.format}\n`;
+                prompt += `- Resolution: ${promptData.technicalSpecs.resolution}\n`;
+                prompt += `- Frame Rate: ${promptData.technicalSpecs.frameRate}\n`;
+                prompt += `- Seamless stitching at all seams (0°/360° boundary)\n`;
+                
+                if (promptData.spatialAudio) {
+                    prompt += `\nSPATIAL AUDIO:\n${promptData.spatialAudio}\n`;
+                }
+
+                output.textContent = prompt;
+            }
+        }
+
+        function switchFormat(format) {
+            currentFormat = format;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.format-btn');
+            buttons.forEach(btn => {
+                if ((format === 'text' && btn.textContent === 'Text') || 
+                    (format === 'json' && btn.textContent === 'JSON')) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Only display if we have data
+            if (Object.keys(promptData).length > 0) {
+                displayPrompt(format);
+            }
         }
 
         function copyPrompt() {
             const promptText = document.getElementById('promptOutput').textContent;
             navigator.clipboard.writeText(promptText).then(function() {
                 const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
                 btn.textContent = 'Copied!';
                 btn.classList.add('copied');
                 setTimeout(function() {
-                    btn.textContent = 'Copy to Clipboard';
+                    btn.textContent = originalText;
                     btn.classList.remove('copied');
                 }, 2000);
             });
@@ -499,6 +591,18 @@
         function resetForm() {
             document.getElementById('promptForm').reset();
             document.getElementById('outputSection').classList.remove('active');
+            promptData = {};
+            currentFormat = 'text';
+            
+            // Reset format buttons
+            const buttons = document.querySelectorAll('.format-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent === 'Text') {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
         }
     </script>
 </body>
