@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360° Video Prompt Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 3rem 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .direction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .technical-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .reset-btn {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .reset-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .output-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .output-section.active {
+            display: block;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .output-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .copy-btn {
+            padding: 0.5rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        #promptOutput {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #333;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .direction-grid,
+            .technical-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>360° Video Prompt Generator</h1>
+            <p>Create detailed prompts for immersive 360-degree video generation</p>
+        </div>
+
+        <div class="form-container">
+            <form id="promptForm">
+                <!-- Scene Description -->
+                <div class="form-section">
+                    <div class="section-title">Scene Description</div>
+                    <div class="form-group">
+                        <label for="sceneDesc">Main Scene</label>
+                        <textarea id="sceneDesc" placeholder="e.g., A serene Japanese zen garden at sunset with koi ponds, cherry blossom trees, and stone pathways"></textarea>
+                        <div class="hint">Describe the overall environment and atmosphere</div>
+                    </div>
+                </div>
+
+                <!-- Camera Setup -->
+                <div class="form-section">
+                    <div class="section-title">Camera Setup</div>
+                    <div class="form-group">
+                        <label for="cameraHeight">Camera Height</label>
+                        <input type="text" id="cameraHeight" placeholder="e.g., eye level, approximately 5.5 feet">
+                    </div>
+                    <div class="form-group">
+                        <label for="cameraPosition">Camera Position</label>
+                        <input type="text" id="cameraPosition" placeholder="e.g., center of the garden, equidistant from key focal points">
+                    </div>
+                </div>
+
+                <!-- 360° Directions -->
+                <div class="form-section">
+                    <div class="section-title">360° Environmental Details</div>
+                    <div class="direction-grid">
+                        <div class="form-group">
+                            <label for="front">Front (0°)</label>
+                            <textarea id="front" placeholder="What appears directly ahead"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="right">Right (90°)</label>
+                            <textarea id="right" placeholder="What appears to the right"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="back">Back (180°)</label>
+                            <textarea id="back" placeholder="What appears behind"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="left">Left (270°)</label>
+                            <textarea id="left" placeholder="What appears to the left"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="above">Above (Zenith)</label>
+                            <textarea id="above" placeholder="Sky, ceiling, overhead elements"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="below">Below (Nadir)</label>
+                            <textarea id="below" placeholder="Ground, floor, base elements"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Movement & Animation -->
+                <div class="form-section">
+                    <div class="section-title">Movement & Animation</div>
+                    <div class="form-group">
+                        <label for="cameraMovement">Camera Movement</label>
+                        <select id="cameraMovement">
+                            <option value="Static">Static</option>
+                            <option value="Slow rotation">Slow rotation</option>
+                            <option value="Moving forward">Moving forward</option>
+                            <option value="Moving backward">Moving backward</option>
+                            <option value="Floating upward">Floating upward</option>
+                            <option value="Circular orbit">Circular orbit</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sceneElements">Scene Elements Movement</label>
+                        <textarea id="sceneElements" placeholder="e.g., Water flowing, leaves falling, people walking, birds flying"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration (seconds)</label>
+                        <input type="number" id="duration" value="30" min="1" max="300">
+                    </div>
+                </div>
+
+                <!-- Atmosphere & Lighting -->
+                <div class="form-section">
+                    <div class="section-title">Atmosphere & Lighting</div>
+                    <div class="form-group">
+                        <label for="timeOfDay">Time of Day</label>
+                        <select id="timeOfDay">
+                            <option value="Golden hour">Golden hour</option>
+                            <option value="Sunrise">Sunrise</option>
+                            <option value="Midday">Midday</option>
+                            <option value="Afternoon">Afternoon</option>
+                            <option value="Sunset">Sunset</option>
+                            <option value="Dusk">Dusk</option>
+                            <option value="Night">Night</option>
+                            <option value="Midnight">Midnight</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lighting">Lighting Conditions</label>
+                        <input type="text" id="lighting" placeholder="e.g., Natural sunlight, ambient lighting, dramatic shadows">
+                    </div>
+                    <div class="form-group">
+                        <label for="weather">Weather</label>
+                        <select id="weather">
+                            <option value="Clear">Clear</option>
+                            <option value="Partly cloudy">Partly cloudy</option>
+                            <option value="Cloudy">Cloudy</option>
+                            <option value="Foggy">Foggy</option>
+                            <option value="Rainy">Rainy</option>
+                            <option value="Snowy">Snowy</option>
+                            <option value="Stormy">Stormy</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Technical Specifications -->
+                <div class="form-section">
+                    <div class="section-title">Technical Specifications</div>
+                    <div class="technical-grid">
+                        <div class="form-group">
+                            <label for="resolution">Resolution</label>
+                            <select id="resolution">
+                                <option value="4K">4K</option>
+                                <option value="8K">8K</option>
+                                <option value="2K">2K</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="frameRate">Frame Rate</label>
+                            <select id="frameRate">
+                                <option value="30fps">30fps</option>
+                                <option value="60fps">60fps</option>
+                                <option value="24fps">24fps</option>
+                                <option value="120fps">120fps</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="audioDesc">Spatial Audio Description (Optional)</label>
+                        <textarea id="audioDesc" placeholder="e.g., Birds chirping from the trees, water flowing on the left, wind rustling leaves"></textarea>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="generate-btn">Generate Prompt</button>
+                    <button type="button" class="reset-btn" onclick="resetForm()">Reset Form</button>
+                </div>
+            </form>
+
+            <div id="outputSection" class="output-section">
+                <div class="output-header">
+                    <div class="output-title">Generated 360° Video Prompt</div>
+                    <button class="copy-btn" onclick="copyPrompt()">Copy to Clipboard</button>
+                </div>
+                <div id="promptOutput"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('promptForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generatePrompt();
+        });
+
+        function generatePrompt() {
+            const sceneDesc = document.getElementById('sceneDesc').value;
+            const cameraHeight = document.getElementById('cameraHeight').value;
+            const cameraPosition = document.getElementById('cameraPosition').value;
+            const front = document.getElementById('front').value;
+            const right = document.getElementById('right').value;
+            const back = document.getElementById('back').value;
+            const left = document.getElementById('left').value;
+            const above = document.getElementById('above').value;
+            const below = document.getElementById('below').value;
+            const cameraMovement = document.getElementById('cameraMovement').value;
+            const sceneElements = document.getElementById('sceneElements').value;
+            const duration = document.getElementById('duration').value;
+            const timeOfDay = document.getElementById('timeOfDay').value;
+            const lighting = document.getElementById('lighting').value;
+            const weather = document.getElementById('weather').value;
+            const resolution = document.getElementById('resolution').value;
+            const frameRate = document.getElementById('frameRate').value;
+            const audioDesc = document.getElementById('audioDesc').value;
+
+            let prompt = `360-DEGREE VIDEO PROMPT\n\n`;
+            prompt += `SCENE DESCRIPTION:\n${sceneDesc || '[Not specified]'}\n\n`;
+            
+            prompt += `CAMERA SETUP:\n`;
+            prompt += `- Height: ${cameraHeight || '[Not specified]'}\n`;
+            prompt += `- Position: ${cameraPosition || '[Not specified]'}\n\n`;
+            
+            prompt += `360° ENVIRONMENTAL DETAILS:\n`;
+            prompt += `- Front (0°): ${front || '[Not specified]'}\n`;
+            prompt += `- Right (90°): ${right || '[Not specified]'}\n`;
+            prompt += `- Back (180°): ${back || '[Not specified]'}\n`;
+            prompt += `- Left (270°): ${left || '[Not specified]'}\n`;
+            prompt += `- Above (Zenith): ${above || '[Not specified]'}\n`;
+            prompt += `- Below (Nadir): ${below || '[Not specified]'}\n\n`;
+            
+            prompt += `MOVEMENT & ANIMATION:\n`;
+            prompt += `- Camera Movement: ${cameraMovement}\n`;
+            prompt += `- Scene Elements: ${sceneElements || '[No movement specified]'}\n`;
+            prompt += `- Duration: ${duration} seconds\n\n`;
+            
+            prompt += `ATMOSPHERE & LIGHTING:\n`;
+            prompt += `- Time of Day: ${timeOfDay}\n`;
+            prompt += `- Lighting: ${lighting || '[Not specified]'}\n`;
+            prompt += `- Weather: ${weather}\n\n`;
+            
+            prompt += `TECHNICAL SPECIFICATIONS:\n`;
+            prompt += `- Format: Equirectangular projection (360° x 180°)\n`;
+            prompt += `- Resolution: ${resolution}\n`;
+            prompt += `- Frame Rate: ${frameRate}\n`;
+            prompt += `- Seamless stitching at all seams (0°/360° boundary)\n`;
+            
+            if (audioDesc) {
+                prompt += `\nSPATIAL AUDIO:\n${audioDesc}\n`;
+            }
+
+            document.getElementById('promptOutput').textContent = prompt;
+            document.getElementById('outputSection').classList.add('active');
+            document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function copyPrompt() {
+            const promptText = document.getElementById('promptOutput').textContent;
+            navigator.clipboard.writeText(promptText).then(function() {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.textContent = 'Copy to Clipboard';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('promptForm').reset();
+            document.getElementById('outputSection').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
