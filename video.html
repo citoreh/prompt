@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Prompt Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .label-description {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: normal;
+            margin-top: 4px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .output-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .output-section.active {
+            display: block;
+        }
+
+        .output-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .output-box {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .output-box pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: #1565c0;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Video Prompt Generator</h1>
+            <p>Create comprehensive video generation prompts with all options</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <p><strong>Note:</strong> Configure all video generation parameters below. The generator will create both text and JSON formatted prompts ready for your AI video generation tool.</p>
+            </div>
+
+            <form id="promptForm">
+                <!-- Main Prompt -->
+                <div class="form-section">
+                    <h2>📝 Main Prompt</h2>
+                    <div class="form-group">
+                        <label for="prompt">
+                            Video Description
+                            <span class="label-description">Describe what you want to see in the video</span>
+                        </label>
+                        <textarea id="prompt" placeholder="A serene mountain landscape at sunset with clouds moving across the sky..." required></textarea>
+                    </div>
+                </div>
+
+                <!-- Video Settings -->
+                <div class="form-section">
+                    <h2>⚙️ Video Settings</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="aspectRatio">Aspect Ratio</label>
+                            <select id="aspectRatio">
+                                <option value="16:9">16:9 (Widescreen)</option>
+                                <option value="9:16">9:16 (Vertical/Mobile)</option>
+                                <option value="1:1">1:1 (Square)</option>
+                                <option value="4:3">4:3 (Standard)</option>
+                                <option value="21:9">21:9 (Cinematic)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration">Duration (seconds)</label>
+                            <input type="number" id="duration" min="1" max="60" value="5">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="resolution">Resolution</label>
+                            <select id="resolution">
+                                <option value="1080p">1080p (Full HD)</option>
+                                <option value="720p">720p (HD)</option>
+                                <option value="4K">4K (Ultra HD)</option>
+                                <option value="480p">480p (SD)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fps">Frame Rate (FPS)</label>
+                            <select id="fps">
+                                <option value="24">24 (Cinematic)</option>
+                                <option value="30">30 (Standard)</option>
+                                <option value="60">60 (Smooth)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Style & Quality -->
+                <div class="form-section">
+                    <h2>🎨 Style & Quality</h2>
+                    <div class="form-group">
+                        <label for="style">Visual Style</label>
+                        <select id="style">
+                            <option value="">Default</option>
+                            <option value="cinematic">Cinematic</option>
+                            <option value="realistic">Realistic</option>
+                            <option value="animated">Animated</option>
+                            <option value="artistic">Artistic</option>
+                            <option value="documentary">Documentary</option>
+                            <option value="vintage">Vintage</option>
+                            <option value="futuristic">Futuristic</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quality">Quality Level</label>
+                        <select id="quality">
+                            <option value="standard">Standard</option>
+                            <option value="high">High</option>
+                            <option value="ultra">Ultra</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Camera Settings -->
+                <div class="form-section">
+                    <h2>📹 Camera Settings</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="cameraAngle">Camera Angle</label>
+                            <select id="cameraAngle">
+                                <option value="">Default</option>
+                                <option value="eye-level">Eye Level</option>
+                                <option value="low-angle">Low Angle</option>
+                                <option value="high-angle">High Angle</option>
+                                <option value="birds-eye">Bird's Eye View</option>
+                                <option value="dutch-angle">Dutch Angle</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cameraMovement">Camera Movement</label>
+                            <select id="cameraMovement">
+                                <option value="static">Static</option>
+                                <option value="pan">Pan</option>
+                                <option value="tilt">Tilt</option>
+                                <option value="zoom">Zoom</option>
+                                <option value="dolly">Dolly</option>
+                                <option value="tracking">Tracking</option>
+                                <option value="orbit">Orbit</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cameraSpeed">
+                            Camera Movement Speed
+                            <span class="label-description">1 = slow, 10 = fast</span>
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="cameraSpeed" min="1" max="10" value="5">
+                            <span class="slider-value" id="cameraSpeedValue">5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motion & Animation -->
+                <div class="form-section">
+                    <h2>🌊 Motion & Animation</h2>
+                    <div class="form-group">
+                        <label for="motionIntensity">
+                            Motion Intensity
+                            <span class="label-description">Amount of movement in the scene</span>
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="motionIntensity" min="0" max="10" value="5">
+                            <span class="slider-value" id="motionIntensityValue">5</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Motion Type</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="motionSmooth" name="motionType" value="smooth" checked>
+                                <label for="motionSmooth">Smooth</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="motionDynamic" name="motionType" value="dynamic">
+                                <label for="motionDynamic">Dynamic</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="motionJittery" name="motionType" value="jittery">
+                                <label for="motionJittery">Jittery</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lighting -->
+                <div class="form-section">
+                    <h2>💡 Lighting</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="lighting">Lighting Type</label>
+                            <select id="lighting">
+                                <option value="">Default</option>
+                                <option value="natural">Natural</option>
+                                <option value="studio">Studio</option>
+                                <option value="dramatic">Dramatic</option>
+                                <option value="soft">Soft</option>
+                                <option value="backlit">Backlit</option>
+                                <option value="golden-hour">Golden Hour</option>
+                                <option value="blue-hour">Blue Hour</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="timeOfDay">Time of Day</label>
+                            <select id="timeOfDay">
+                                <option value="">Not Specified</option>
+                                <option value="dawn">Dawn</option>
+                                <option value="morning">Morning</option>
+                                <option value="noon">Noon</option>
+                                <option value="afternoon">Afternoon</option>
+                                <option value="dusk">Dusk</option>
+                                <option value="night">Night</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Color & Mood -->
+                <div class="form-section">
+                    <h2>🎨 Color & Mood</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="colorPalette">Color Palette</label>
+                            <select id="colorPalette">
+                                <option value="">Default</option>
+                                <option value="warm">Warm</option>
+                                <option value="cool">Cool</option>
+                                <option value="vibrant">Vibrant</option>
+                                <option value="muted">Muted</option>
+                                <option value="monochrome">Monochrome</option>
+                                <option value="pastel">Pastel</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mood">Mood/Atmosphere</label>
+                            <select id="mood">
+                                <option value="">Default</option>
+                                <option value="peaceful">Peaceful</option>
+                                <option value="energetic">Energetic</option>
+                                <option value="mysterious">Mysterious</option>
+                                <option value="dramatic">Dramatic</option>
+                                <option value="joyful">Joyful</option>
+                                <option value="melancholic">Melancholic</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="colorGrading">Color Grading</label>
+                        <input type="text" id="colorGrading" placeholder="e.g., teal and orange, desaturated, high contrast">
+                    </div>
+                </div>
+
+                <!-- Audio/Sound -->
+                <div class="form-section">
+                    <h2>🔊 Audio/Sound (if supported)</h2>
+                    <div class="form-group">
+                        <label for="audioDescription">Audio Description</label>
+                        <textarea id="audioDescription" placeholder="Gentle wind sounds, birds chirping, peaceful ambient music..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="musicGenre">Music Genre</label>
+                        <input type="text" id="musicGenre" placeholder="e.g., ambient, orchestral, electronic">
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="form-section">
+                    <h2>🔧 Advanced Options</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="seed">Seed (for reproducibility)</label>
+                            <input type="number" id="seed" placeholder="Leave empty for random">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="model">Model/Version</label>
+                            <input type="text" id="model" placeholder="e.g., v1, v2, latest">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="negativePrompt">Negative Prompt</label>
+                        <textarea id="negativePrompt" placeholder="Things to avoid in the video..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="loop">
+                            <label for="loop">Loop video seamlessly</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="interpolation">
+                            <label for="interpolation">Enable frame interpolation for smoother motion</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Generate Prompts</button>
+                    <button type="button" class="btn-secondary" onclick="resetForm()">Reset Form</button>
+                </div>
+            </form>
+
+            <!-- Output Section -->
+            <div class="output-section" id="outputSection">
+                <h3>📄 Text Format</h3>
+                <div class="output-box">
+                    <button class="copy-btn" onclick="copyToClipboard('textOutput', this)">Copy</button>
+                    <pre id="textOutput"></pre>
+                </div>
+
+                <h3>📋 JSON Format</h3>
+                <div class="output-box">
+                    <button class="copy-btn" onclick="copyToClipboard('jsonOutput', this)">Copy</button>
+                    <pre id="jsonOutput"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update slider values
+        document.getElementById('cameraSpeed').addEventListener('input', function(e) {
+            document.getElementById('cameraSpeedValue').textContent = e.target.value;
+        });
+
+        document.getElementById('motionIntensity').addEventListener('input', function(e) {
+            document.getElementById('motionIntensityValue').textContent = e.target.value;
+        });
+
+        // Form submission
+        document.getElementById('promptForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generatePrompts();
+        });
+
+        function generatePrompts() {
+            // Collect all form data
+            const formData = {
+                prompt: document.getElementById('prompt').value,
+                aspectRatio: document.getElementById('aspectRatio').value,
+                duration: parseInt(document.getElementById('duration').value),
+                resolution: document.getElementById('resolution').value,
+                fps: parseInt(document.getElementById('fps').value),
+                style: document.getElementById('style').value,
+                quality: document.getElementById('quality').value,
+                cameraAngle: document.getElementById('cameraAngle').value,
+                cameraMovement: document.getElementById('cameraMovement').value,
+                cameraSpeed: parseInt(document.getElementById('cameraSpeed').value),
+                motionIntensity: parseInt(document.getElementById('motionIntensity').value),
+                motionType: document.querySelector('input[name="motionType"]:checked').value,
+                lighting: document.getElementById('lighting').value,
+                timeOfDay: document.getElementById('timeOfDay').value,
+                colorPalette: document.getElementById('colorPalette').value,
+                mood: document.getElementById('mood').value,
+                colorGrading: document.getElementById('colorGrading').value,
+                audioDescription: document.getElementById('audioDescription').value,
+                musicGenre: document.getElementById('musicGenre').value,
+                seed: document.getElementById('seed').value,
+                model: document.getElementById('model').value,
+                negativePrompt: document.getElementById('negativePrompt').value,
+                loop: document.getElementById('loop').checked,
+                interpolation: document.getElementById('interpolation').checked
+            };
+
+            // Generate text format
+            const textPrompt = generateTextPrompt(formData);
+            document.getElementById('textOutput').textContent = textPrompt;
+
+            // Generate JSON format
+            const jsonPrompt = generateJSONPrompt(formData);
+            document.getElementById('jsonOutput').textContent = JSON.stringify(jsonPrompt, null, 2);
+
+            // Show output section
+            document.getElementById('outputSection').classList.add('active');
+            document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateTextPrompt(data) {
+            let prompt = `VIDEO PROMPT:\n${data.prompt}\n`;
+
+            prompt += `\nVIDEO SETTINGS:\n`;
+            prompt += `- Aspect Ratio: ${data.aspectRatio}\n`;
+            prompt += `- Duration: ${data.duration} seconds\n`;
+            prompt += `- Resolution: ${data.resolution}\n`;
+            prompt += `- Frame Rate: ${data.fps} fps\n`;
+
+            if (data.style) prompt += `\nSTYLE: ${data.style}\n`;
+            prompt += `Quality: ${data.quality}\n`;
+
+            prompt += `\nCAMERA:\n`;
+            if (data.cameraAngle) prompt += `- Angle: ${data.cameraAngle}\n`;
+            prompt += `- Movement: ${data.cameraMovement}\n`;
+            if (data.cameraMovement !== 'static') {
+                prompt += `- Speed: ${data.cameraSpeed}/10\n`;
+            }
+
+            prompt += `\nMOTION:\n`;
+            prompt += `- Intensity: ${data.motionIntensity}/10\n`;
+            prompt += `- Type: ${data.motionType}\n`;
+
+            if (data.lighting || data.timeOfDay) {
+                prompt += `\nLIGHTING:\n`;
+                if (data.lighting) prompt += `- Type: ${data.lighting}\n`;
+                if (data.timeOfDay) prompt += `- Time: ${data.timeOfDay}\n`;
+            }
+
+            if (data.colorPalette || data.mood || data.colorGrading) {
+                prompt += `\nCOLOR & MOOD:\n`;
+                if (data.colorPalette) prompt += `- Palette: ${data.colorPalette}\n`;
+                if (data.mood) prompt += `- Mood: ${data.mood}\n`;
+                if (data.colorGrading) prompt += `- Grading: ${data.colorGrading}\n`;
+            }
+
+            if (data.audioDescription || data.musicGenre) {
+                prompt += `\nAUDIO:\n`;
+                if (data.audioDescription) prompt += `- Description: ${data.audioDescription}\n`;
+                if (data.musicGenre) prompt += `- Music: ${data.musicGenre}\n`;
+            }
+
+            if (data.seed || data.model || data.negativePrompt || data.loop || data.interpolation) {
+                prompt += `\nADVANCED OPTIONS:\n`;
+                if (data.seed) prompt += `- Seed: ${data.seed}\n`;
+                if (data.model) prompt += `- Model: ${data.model}\n`;
+                if (data.loop) prompt += `- Loop: enabled\n`;
+                if (data.interpolation) prompt += `- Frame Interpolation: enabled\n`;
+                if (data.negativePrompt) prompt += `- Negative Prompt: ${data.negativePrompt}\n`;
+            }
+
+            return prompt;
+        }
+
+        function generateJSONPrompt(data) {
+            const jsonPrompt = {
+                prompt: data.prompt,
+                settings: {
+                    aspectRatio: data.aspectRatio,
+                    duration: data.duration,
+                    resolution: data.resolution,
+                    fps: data.fps,
+                    quality: data.quality
+                },
+                camera: {
+                    movement: data.cameraMovement,
+                    speed: data.cameraSpeed
+                },
+                motion: {
+                    intensity: data.motionIntensity,
+                    type: data.motionType
+                }
+            };
+
+            if (data.style) jsonPrompt.style = data.style;
+            if (data.cameraAngle) jsonPrompt.camera.angle = data.cameraAngle;
+
+            if (data.lighting || data.timeOfDay) {
+                jsonPrompt.lighting = {};
+                if (data.lighting) jsonPrompt.lighting.type = data.lighting;
+                if (data.timeOfDay) jsonPrompt.lighting.timeOfDay = data.timeOfDay;
+            }
+
+            if (data.colorPalette || data.mood || data.colorGrading) {
+                jsonPrompt.color = {};
+                if (data.colorPalette) jsonPrompt.color.palette = data.colorPalette;
+                if (data.mood) jsonPrompt.color.mood = data.mood;
+                if (data.colorGrading) jsonPrompt.color.grading = data.colorGrading;
+            }
+
+            if (data.audioDescription || data.musicGenre) {
+                jsonPrompt.audio = {};
+                if (data.audioDescription) jsonPrompt.audio.description = data.audioDescription;
+                if (data.musicGenre) jsonPrompt.audio.musicGenre = data.musicGenre;
+            }
+
+            if (data.seed || data.model || data.negativePrompt || data.loop || data.interpolation) {
+                jsonPrompt.advanced = {};
+                if (data.seed) jsonPrompt.advanced.seed = parseInt(data.seed);
+                if (data.model) jsonPrompt.advanced.model = data.model;
+                if (data.negativePrompt) jsonPrompt.advanced.negativePrompt = data.negativePrompt;
+                if (data.loop) jsonPrompt.advanced.loop = data.loop;
+                if (data.interpolation) jsonPrompt.advanced.interpolation = data.interpolation;
+            }
+
+            return jsonPrompt;
+        }
+
+        function copyToClipboard(elementId, button) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('promptForm').reset();
+            document.getElementById('cameraSpeedValue').textContent = '5';
+            document.getElementById('motionIntensityValue').textContent = '5';
+            document.getElementById('outputSection').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
